@@ -1,5 +1,5 @@
 from flask import render_template,flash, redirect, request, session, url_for
-from app import app
+from app import db,app
 from forms import LoginForm
 
 @app.route('/')
@@ -12,17 +12,21 @@ def index():
 def login():
 #    from app import request
     error = None
-    if request.method == 'POST':
-        if request.form['username'] != 'rick': #app.config['USERNAME']:
-            error = 'Invalid username'
-        elif request.form['password'] != 'chenglin': #app.config['PASSWORD']:
+    users = None
+    if request.method == 'POST' and  request.form['username'] is not None:
+        pu = request.form['username']
+        from models import User
+        users = User.query.filter(User.username==pu).all()
+#        users = list(db.session.execute("select * from \"user\" where username=:username", {'username':pu}).fetchall())
+        if request.form['password'] != users[0].password: #app.config['PASSWORD']:
+#        if request.form['password'] != users.password: #app.config['PASSWORD']:
             error = 'Invalid password'
         else:
             session['logged_in'] = True
             flash('You were logged in')
-            return render_template("index.html", title='hello', user='rick')
+            return render_template("index.html", title='hello', user=users)
     flash('this is a flash')
-    return render_template('login.html', error=error, form=list())
+    return render_template('login.html', error=error, form=list(),user=users)
 
 @app.route('/test')
 def test():
@@ -45,5 +49,5 @@ def test1():
     from app import db, SQLAlchemy
 #    user =  Table('users', metadata, autoload=True)
 #   users = User.query.all()
-    users = db.session.execute("select * from post").first()
+    users = db.session.execute("select * from user").first()
     return render_template('test.html', user=users, db=db)
