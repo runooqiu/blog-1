@@ -1,6 +1,7 @@
 from flask import render_template,flash, redirect, request, session, url_for
-from app import db,app
+from app import db
 from forms import LoginForm
+from app import app
 
 @app.route('/')
 @app.route('/index')
@@ -15,7 +16,7 @@ def login():
     users = None
     if request.method == 'POST' and  request.form['username'] is not None:
         pu = request.form['username']
-        from models import User
+        from models.User import User
         users = User.query.filter(User.username==pu).all()
 #        users = list(db.session.execute("select * from \"user\" where username=:username", {'username':pu}).fetchall())
         if request.form['password'] != users[0].password: #app.config['PASSWORD']:

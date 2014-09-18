@@ -17,3 +17,8 @@ class User(db.Model):
 
     def __repr__(self):
         return "<%s>" % self
+
+
+
+def test():
+    print "helo world from models"
