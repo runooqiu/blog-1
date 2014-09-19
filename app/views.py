@@ -2,6 +2,7 @@ from flask import render_template,flash, redirect, request, session, url_for
 from app import db
 from forms import LoginForm
 from app import app
+from models.User import User
 
 @app.route('/')
 @app.route('/index')
@@ -16,7 +17,6 @@ def login():
     users = None
     if request.method == 'POST' and  request.form['username'] is not None:
         pu = request.form['username']
-        from models.User import User
         users = User.query.filter(User.username==pu).all()
 #        users = list(db.session.execute("select * from \"user\" where username=:username", {'username':pu}).fetchall())
         if request.form['password'] != users[0].password: #app.config['PASSWORD']:
@@ -28,6 +28,17 @@ def login():
             return render_template("index.html", title='hello', user=users)
     flash('this is a flash')
     return render_template('login.html', error=error, form=list(),user=users)
+
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+    if request.method == 'POST' and  request.form['username'] is not None and  request.form['password'] is not None:
+        user = User(username=request.form['username'], password=request.form['password'])
+        db.session.add(user)
+        db.session.commit()
+        return "gogo"
+    users = User.query.all()
+    return render_template('register.html', users=users)
+
 
 @app.route('/test')
 def test():
